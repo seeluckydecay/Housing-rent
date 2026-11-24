@@ -103,10 +103,21 @@ namespace HousingRental
 
         static void ShowDistrictRoomsTable()
         {
-            int rows = 4;
-            int cols = 4;
+            Console.Write("Введіть кількість районів (рядків таблиці): ");
+            if (!int.TryParse(Console.ReadLine(), out int rows) || rows <= 0)
+            {
+                Console.WriteLine("Помилка: кількість рядків має бути цілим числом більшим за нуль.");
+                return;
+            }
 
-            Console.WriteLine("Таблиця вартості оренди за районами та кількістю кімнат (грн/міс):\n");
+            Console.Write("Введіть максимальну кількість кімнат (стовпців таблиці): ");
+            if (!int.TryParse(Console.ReadLine(), out int cols) || cols <= 0)
+            {
+                Console.WriteLine("Помилка: кількість стовпців має бути цілим числом більшим за нуль.");
+                return;
+            }
+
+            Console.WriteLine("\nЗведена таблиця вартості оренди за районами та кімнатами (грн/міс):\n");
 
             Console.Write($"{"Район \\ Кімнати",-16}");
             for (int col = 1; col <= cols; col++)
@@ -114,7 +125,9 @@ namespace HousingRental
                 Console.Write($"{col + " кімн.",12}");
             }
             Console.WriteLine($"{"Підсумок",14}");
-            Console.WriteLine(new string('-', 16 + cols * 12 + 14));
+
+            int lineWidth = 16 + cols * 12 + 14;
+            Console.WriteLine(new string('-', lineWidth));
 
             for (int row = 1; row <= rows; row++)
             {
@@ -130,6 +143,25 @@ namespace HousingRental
 
                 Console.WriteLine($"{rowSum,14:F0}");
             }
+
+            Console.WriteLine(new string('-', lineWidth));
+
+            Console.Write($"{"Разом по стовп.",-16}");
+            double grandTotal = 0;
+
+            for (int col = 1; col <= cols; col++)
+            {
+                double colSum = 0;
+                for (int row = 1; row <= rows; row++)
+                {
+                    double price = 6000 + row * 1200 + col * 2500;
+                    colSum += price;
+                }
+                grandTotal += colSum;
+                Console.Write($"{colSum,12:F0}");
+            }
+
+            Console.WriteLine($"{grandTotal,14:F0}");
         }
     }
 }
