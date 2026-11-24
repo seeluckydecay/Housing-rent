@@ -21,7 +21,7 @@ namespace HousingRental
                 switch (choice)
                 {
                     case "1": ShowAbout(); Pause(); break;
-                    case "2": PrintRentTabulation(25.0, 80.0, 5.5); Pause(); break;
+                    case "2": HandleTabulationMenu(); Pause(); break;
                     case "3": ShowDistrictRoomsTable(); Pause(); break;
                     case "4": ShowPricePerSqmDemo(); Pause(); break;
                     case "5": ShowNotImplemented(); Pause(); break;
@@ -65,6 +65,52 @@ namespace HousingRental
             Console.Clear();
         }
 
+        static int ReadInt(string prompt, int min, int max)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (!int.TryParse(input, out int value))
+                {
+                    Console.WriteLine("Помилка: потрібно ввести ціле число.");
+                    continue;
+                }
+
+                if (value < min || value > max)
+                {
+                    Console.WriteLine($"Помилка: число має бути в межах від {min} до {max}.");
+                    continue;
+                }
+
+                return value;
+            }
+        }
+
+        static double ReadDouble(string prompt, double min, double max)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (!double.TryParse(input, out double value))
+                {
+                    Console.WriteLine("Помилка: потрібно ввести число.");
+                    continue;
+                }
+
+                if (value < min || value > max)
+                {
+                    Console.WriteLine($"Помилка: значення має бути в межах від {min} до {max}.");
+                    continue;
+                }
+
+                return value;
+            }
+        }
+
         static void ShowAbout()
         {
             Console.WriteLine("Тема проєкту: Оренда житла (Варіант №27)");
@@ -103,13 +149,21 @@ namespace HousingRental
 
         static void ShowPricePerSqmDemo()
         {
-            double samplePrice = 14500.0;
-            double sampleArea = 52.5;
+            double samplePrice = ReadDouble("Введіть місячну ціну оренди (1000 - 200000 грн): ", 1000, 200000);
+            double sampleArea = ReadDouble("Введіть площу квартири (10 - 500 м²): ", 10, 500);
             double pricePerSqm = CalculatePricePerSquareMeter(samplePrice, sampleArea);
 
-            Console.WriteLine("Контрольний розрахунок ціни за 1 м²:");
-            Console.WriteLine($"Місячна оренда: {samplePrice:F2} грн, площа: {sampleArea:F2} м²");
-            Console.WriteLine($"Ціна за квадратний метр: {pricePerSqm:F2} грн/м²");
+            Console.WriteLine($"\nЦіна за квадратний метр: {pricePerSqm:F2} грн/м²");
+        }
+
+        static void HandleTabulationMenu()
+        {
+            double fromArea = ReadDouble("Введіть початкову площу (10 - 200 м²): ", 10, 200);
+            double toArea = ReadDouble($"Введіть кінцеву площу ({fromArea} - 300 м²): ", fromArea, 300);
+            double step = ReadDouble("Введіть крок зміни площі (0.5 - 50 м²): ", 0.5, 50);
+            Console.WriteLine();
+
+            PrintRentTabulation(fromArea, toArea, step);
         }
 
         static void PrintRentTabulation(double fromArea, double toArea, double step)
@@ -137,19 +191,8 @@ namespace HousingRental
 
         static void ShowDistrictRoomsTable()
         {
-            Console.Write("Введіть кількість районів (рядків таблиці): ");
-            if (!int.TryParse(Console.ReadLine(), out int rows) || rows <= 0)
-            {
-                Console.WriteLine("Помилка: кількість рядків має бути цілим числом більшим за нуль.");
-                return;
-            }
-
-            Console.Write("Введіть максимальну кількість кімнат (стовпців таблиці): ");
-            if (!int.TryParse(Console.ReadLine(), out int cols) || cols <= 0)
-            {
-                Console.WriteLine("Помилка: кількість стовпців має бути цілим числом більшим за нуль.");
-                return;
-            }
+            int rows = ReadInt("Введіть кількість районів (від 1 до 20): ", 1, 20);
+            int cols = ReadInt("Введіть максимальну кількість кімнат (від 1 до 10): ", 1, 10);
 
             Console.WriteLine("\nЗведена таблиця вартості оренди за районами та кімнатами (грн/міс):\n");
 
