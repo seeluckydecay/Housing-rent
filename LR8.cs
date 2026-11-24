@@ -21,7 +21,7 @@ namespace HousingRental
                 switch (choice)
                 {
                     case "1": ShowAbout(); Pause(); break;
-                    case "2": ShowRentTabulation(); Pause(); break;
+                    case "2": PrintRentTabulation(25.0, 80.0, 5.5); Pause(); break;
                     case "3": ShowDistrictRoomsTable(); Pause(); break;
                     case "4": ShowPricePerSqmDemo(); Pause(); break;
                     case "5": ShowNotImplemented(); Pause(); break;
@@ -112,14 +112,17 @@ namespace HousingRental
             Console.WriteLine($"Ціна за квадратний метр: {pricePerSqm:F2} грн/м²");
         }
 
-        static void ShowRentTabulation()
+        static void PrintRentTabulation(double fromArea, double toArea, double step)
         {
+            if (step <= 0 || fromArea > toArea)
+            {
+                Console.WriteLine("Помилка: некоректні межі або крок табулювання.");
+                return;
+            }
+
             Console.WriteLine("Розрахунок орієнтовної вартості оренди залежно від площі:");
             Console.WriteLine("Формула: Базова ставка (180 грн/м²) + коефіцієнт комфорту\n");
 
-            double fromArea = 25.0;
-            double toArea = 80.0;
-            double step = 5.5;
             double baseRate = 180.0;
 
             Console.WriteLine($"{"Площа (м²)",12} | {"Ціна/міс (грн)",16}");
