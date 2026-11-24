@@ -22,7 +22,7 @@ namespace HousingRental
                 {
                     case "1": ShowAbout(); Pause(); break;
                     case "2": HandleTabulationMenu(); Pause(); break;
-                    case "3": ShowDistrictRoomsTable(); Pause(); break;
+                    case "3": HandleDistrictRoomsMenu(); Pause(); break;
                     case "4": ShowPricePerSqmDemo(); Pause(); break;
                     case "5": ShowNotImplemented(); Pause(); break;
                     case "0": running = false; ShowGoodbye(); break;
@@ -189,12 +189,24 @@ namespace HousingRental
             }
         }
 
-        static void ShowDistrictRoomsTable()
+        static void HandleDistrictRoomsMenu()
         {
             int rows = ReadInt("Введіть кількість районів (від 1 до 20): ", 1, 20);
             int cols = ReadInt("Введіть максимальну кількість кімнат (від 1 до 10): ", 1, 10);
+            Console.WriteLine();
 
-            Console.WriteLine("\nЗведена таблиця вартості оренди за районами та кімнатами (грн/міс):\n");
+            PrintDistrictRoomsTable(rows, cols);
+        }
+
+        static void PrintDistrictRoomsTable(int rows, int cols)
+        {
+            if (rows <= 0 || cols <= 0)
+            {
+                Console.WriteLine("Помилка: розміри таблиці мають бути більшими за нуль.");
+                return;
+            }
+
+            Console.WriteLine("Зведена таблиця вартості оренди за районами та кімнатами (грн/міс):\n");
 
             Console.Write($"{"Район \\ Кімнати",-16}");
             for (int col = 1; col <= cols; col++)
