@@ -37,7 +37,7 @@ namespace HousingRental
                         Pause();
                         break;
                     case "3":
-                        Console.WriteLine("Поки не зроблено.");
+                        ShowDistrictRoomsTable();
                         Pause();
                         break;
                     case "4":
@@ -98,6 +98,37 @@ namespace HousingRental
             {
                 double monthlyPrice = area * baseRate + Math.Sqrt(area) * 250.0;
                 Console.WriteLine($"{area,12:F2} | {monthlyPrice,16:F2}");
+            }
+        }
+
+        static void ShowDistrictRoomsTable()
+        {
+            int rows = 4;
+            int cols = 4;
+
+            Console.WriteLine("Таблиця вартості оренди за районами та кількістю кімнат (грн/міс):\n");
+
+            Console.Write($"{"Район \\ Кімнати",-16}");
+            for (int col = 1; col <= cols; col++)
+            {
+                Console.Write($"{col + " кімн.",12}");
+            }
+            Console.WriteLine($"{"Підсумок",14}");
+            Console.WriteLine(new string('-', 16 + cols * 12 + 14));
+
+            for (int row = 1; row <= rows; row++)
+            {
+                Console.Write($"{"Район №" + row,-16}");
+                double rowSum = 0;
+
+                for (int col = 1; col <= cols; col++)
+                {
+                    double price = 6000 + row * 1200 + col * 2500;
+                    rowSum += price;
+                    Console.Write($"{price,12:F0}");
+                }
+
+                Console.WriteLine($"{rowSum,14:F0}");
             }
         }
     }
