@@ -29,7 +29,7 @@ namespace HousingRental
                 switch (choice)
                 {
                     case "1":
-                        Console.WriteLine("Поки не зроблено.");
+                        ShowAbout();
                         Pause();
                         break;
                     case "2":
@@ -62,6 +62,23 @@ namespace HousingRental
             Console.WriteLine("\nНатисніть будь-яку клавішу для повернення в меню...");
             Console.ReadKey(true);
             Console.Clear();
+        }
+
+        static void ShowAbout()
+        {
+            Console.WriteLine("Тема проєкту: Оренда житла (Варіант №27)");
+            Console.WriteLine("Сутності: Користувач, Оголошення (головна), Район (довідник).");
+            Console.WriteLine("\nПоля головної сутності «Оголошення» (9 полів):");
+            Console.WriteLine("  1. int код");
+            Console.WriteLine("  2. string адреса");
+            Console.WriteLine("  3. int кількість кімнат");
+            Console.WriteLine("  4. double площа");
+            Console.WriteLine("  5. int поверх");
+            Console.WriteLine("  6. double ціна за місяць");
+            Console.WriteLine("  7. DateTime дата публікації");
+            Console.WriteLine("  8. bool чи здано");
+            Console.WriteLine("  9. int код району (посилання на довідник)");
+            Console.WriteLine("\nПідсумкова величина: середня ціна за квадратний метр по районах.");
         }
     }
 }
