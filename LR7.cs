@@ -33,7 +33,7 @@ namespace HousingRental
                         Pause();
                         break;
                     case "2":
-                        Console.WriteLine("Поки не зроблено.");
+                        ShowRentTabulation();
                         Pause();
                         break;
                     case "3":
@@ -79,6 +79,26 @@ namespace HousingRental
             Console.WriteLine("  8. bool чи здано");
             Console.WriteLine("  9. int код району (посилання на довідник)");
             Console.WriteLine("\nПідсумкова величина: середня ціна за квадратний метр по районах.");
+        }
+
+        static void ShowRentTabulation()
+        {
+            Console.WriteLine("Розрахунок орієнтовної вартості оренди залежно від площі:");
+            Console.WriteLine("Формула: Базова ставка (180 грн/м²) + коефіцієнт комфорту\n");
+
+            double fromArea = 25.0;
+            double toArea = 80.0;
+            double step = 5.5;
+            double baseRate = 180.0;
+
+            Console.WriteLine($"{"Площа (м²)",12} | {"Ціна/міс (грн)",16}");
+            Console.WriteLine(new string('-', 31));
+
+            for (double area = fromArea; area <= toArea + 1e-9; area += step)
+            {
+                double monthlyPrice = area * baseRate + Math.Sqrt(area) * 250.0;
+                Console.WriteLine($"{area,12:F2} | {monthlyPrice,16:F2}");
+            }
         }
     }
 }
