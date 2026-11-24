@@ -23,7 +23,7 @@ namespace HousingRental
                     case "1": ShowAbout(); Pause(); break;
                     case "2": ShowRentTabulation(); Pause(); break;
                     case "3": ShowDistrictRoomsTable(); Pause(); break;
-                    case "4": ShowNotImplemented(); Pause(); break;
+                    case "4": ShowPricePerSqmDemo(); Pause(); break;
                     case "5": ShowNotImplemented(); Pause(); break;
                     case "0": running = false; ShowGoodbye(); break;
                     default: ShowInvalidChoice(); Pause(); break;
@@ -37,7 +37,7 @@ namespace HousingRental
             Console.WriteLine("1 - Довідка про систему та сутність");
             Console.WriteLine("2 - Таблиця оренди за площею (табулювання)");
             Console.WriteLine("3 - Зведена таблиця вартості (райони / кімнати)");
-            Console.WriteLine("4 - Показати всі оголошення (поки не зроблено)");
+            Console.WriteLine("4 - Розрахунок ціни за квадратний метр (приклад)");
             Console.WriteLine("5 - Додати оголошення (поки не зроблено)");
             Console.WriteLine("0 - Вихід");
             Console.Write("Ваш вибір: ");
@@ -82,6 +82,36 @@ namespace HousingRental
             Console.WriteLine("\nПідсумкова величина: середня ціна за квадратний метр по районах.");
         }
 
+        static double CalculateMonthlyRent(double area, double baseRate)
+        {
+            return area * baseRate + Math.Sqrt(area) * 250.0;
+        }
+
+        static double CalculatePricePerSquareMeter(double monthlyPrice, double area)
+        {
+            if (area <= 0)
+            {
+                return 0;
+            }
+            return monthlyPrice / area;
+        }
+
+        static double CalculateCellPrice(int districtNumber, int roomsCount)
+        {
+            return 6000 + districtNumber * 1200 + roomsCount * 2500;
+        }
+
+        static void ShowPricePerSqmDemo()
+        {
+            double samplePrice = 14500.0;
+            double sampleArea = 52.5;
+            double pricePerSqm = CalculatePricePerSquareMeter(samplePrice, sampleArea);
+
+            Console.WriteLine("Контрольний розрахунок ціни за 1 м²:");
+            Console.WriteLine($"Місячна оренда: {samplePrice:F2} грн, площа: {sampleArea:F2} м²");
+            Console.WriteLine($"Ціна за квадратний метр: {pricePerSqm:F2} грн/м²");
+        }
+
         static void ShowRentTabulation()
         {
             Console.WriteLine("Розрахунок орієнтовної вартості оренди залежно від площі:");
@@ -97,7 +127,7 @@ namespace HousingRental
 
             for (double area = fromArea; area <= toArea + 1e-9; area += step)
             {
-                double monthlyPrice = area * baseRate + Math.Sqrt(area) * 250.0;
+                double monthlyPrice = CalculateMonthlyRent(area, baseRate);
                 Console.WriteLine($"{area,12:F2} | {monthlyPrice,16:F2}");
             }
         }
@@ -137,7 +167,7 @@ namespace HousingRental
 
                 for (int col = 1; col <= cols; col++)
                 {
-                    double price = 6000 + row * 1200 + col * 2500;
+                    double price = CalculateCellPrice(row, col);
                     rowSum += price;
                     Console.Write($"{price,12:F0}");
                 }
@@ -155,8 +185,7 @@ namespace HousingRental
                 double colSum = 0;
                 for (int row = 1; row <= rows; row++)
                 {
-                    double price = 6000 + row * 1200 + col * 2500;
-                    colSum += price;
+                    colSum += CalculateCellPrice(row, col);
                 }
                 grandTotal += colSum;
                 Console.Write($"{colSum,12:F0}");
