@@ -37,7 +37,13 @@ namespace HousingRental
                 switch (choice)
                 {
                     case "1": ShowNotImplemented(); Pause(); break;
-                    case "2": ShowNotImplemented(); Pause(); break;
+                    case "2":
+                        AddListing(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            ref count, ref nextId, Capacity);
+                        Pause();
+                        break;
                     case "3": ShowNotImplemented(); Pause(); break;
                     case "4": ShowNotImplemented(); Pause(); break;
                     case "5": ShowNotImplemented(); Pause(); break;
@@ -57,7 +63,7 @@ namespace HousingRental
         {
             Console.WriteLine("=== Оренда житла ===");
             Console.WriteLine("1 - Показати всі оголошення (поки не зроблено)");
-            Console.WriteLine("2 - Додати оголошення (поки не зроблено)");
+            Console.WriteLine("2 - Додати оголошення");
             Console.WriteLine("3 - Знайти за умовою (поки не зроблено)");
             Console.WriteLine("4 - Змінити оголошення (поки не зроблено)");
             Console.WriteLine("5 - Видалити оголошення (поки не зроблено)");
@@ -123,6 +129,112 @@ namespace HousingRental
 
                 Console.WriteLine($"Помилка: потрібне число від {min} до {max}.");
             }
+        }
+
+        static string ReadText(string prompt, int minLength)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (input != null && input.Trim().Length >= minLength)
+                {
+                    return input.Trim();
+                }
+
+                Console.WriteLine($"Помилка: рядок не може бути порожнім (мінімум {minLength} символи).");
+            }
+        }
+
+        static DateTime ReadDate(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (DateTime.TryParseExact(input, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                {
+                    if (date.Year >= 1900 && date <= DateTime.Today)
+                    {
+                        return date;
+                    }
+                    Console.WriteLine("Помилка: дата має бути від 01.01.1900 і не в майбутньому.");
+                    continue;
+                }
+
+                Console.WriteLine("Помилка: введіть коректну дату у форматі дд.мм.рррр.");
+            }
+        }
+
+        static bool ReadBool(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (input != null)
+                {
+                    string normalized = input.Trim().ToLower();
+                    if (normalized == "так")
+                    {
+                        return true;
+                    }
+                    if (normalized == "ні")
+                    {
+                        return false;
+                    }
+                }
+
+                Console.WriteLine("Помилка: введіть «так» або «ні».");
+            }
+        }
+
+        static void AddListing(
+            int[] ids,
+            string[] addresses,
+            int[] roomsCounts,
+            double[] areas,
+            int[] floors,
+            double[] monthlyPrices,
+            DateTime[] publicationDates,
+            bool[] isRentedFlags,
+            int[] districtIds,
+            ref int count,
+            ref int nextId,
+            int capacity)
+        {
+            if (count == capacity)
+            {
+                Console.WriteLine("Сховище заповнене, видаліть зайві записи.");
+                return;
+            }
+
+            string address = ReadText("Адреса (вулиця та номер будинку): ", 2);
+            int rooms = ReadInt("Кількість кімнат (1 - 20): ", 1, 20);
+            double area = ReadDouble("Площа, м² (10 - 1000): ", 10, 1000);
+            int floor = ReadInt("Поверх (1 - 100): ", 1, 100);
+            double price = ReadDouble("Ціна за місяць, грн (500 - 500000): ", 500, 500000);
+            DateTime pubDate = ReadDate("Дата публікації (дд.мм.рррр): ");
+            bool isRented = ReadBool("Чи здано зараз (так/ні): ");
+            int districtId = ReadInt("Код району з довідника (1 - 10): ", 1, 10);
+
+            ids[count] = nextId;
+            addresses[count] = address;
+            roomsCounts[count] = rooms;
+            areas[count] = area;
+            floors[count] = floor;
+            monthlyPrices[count] = price;
+            publicationDates[count] = pubDate;
+            isRentedFlags[count] = isRented;
+            districtIds[count] = districtId;
+
+            count++;
+            nextId++;
+
+            Console.WriteLine($"\nДодано оголошення №{ids[count - 1]}. Усього записів: {count}.");
         }
 
         static void ShowAbout()
