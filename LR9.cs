@@ -33,9 +33,23 @@ namespace HousingRental
                         AddRentPrice(rentPrices, ref count, newPrice, Capacity);
                         Pause();
                         break;
-                    case "6": ShowNotImplemented(); Pause(); break;
+                    case "6":
+                        PrintRentPrices(rentPrices, count);
+                        Pause();
+                        break;
                     case "7": ShowNotImplemented(); Pause(); break;
-                    case "8": ShowNotImplemented(); Pause(); break;
+                    case "8":
+                        FindMaxRentPrice(rentPrices, count, out double maxPrice, out int maxNumber);
+                        if (maxNumber > 0)
+                        {
+                            Console.WriteLine($"Найдорожча оренда: {maxPrice:F2} грн (запис №{maxNumber}).");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Масив порожній, максимум визначити неможливо.");
+                        }
+                        Pause();
+                        break;
                     case "0": running = false; ShowGoodbye(); break;
                     default: ShowInvalidChoice(); Pause(); break;
                 }
@@ -50,9 +64,9 @@ namespace HousingRental
             Console.WriteLine("3 - Зведена таблиця вартості (райони / кімнати)");
             Console.WriteLine("4 - Розрахунок ціни за квадратний метр (приклад)");
             Console.WriteLine("5 - Додати значення ціни оренди у масив");
-            Console.WriteLine("6 - Показати всі ціни з масиву (поки не зроблено)");
+            Console.WriteLine("6 - Показати всі ціни з масиву");
             Console.WriteLine("7 - Видалити ціну за номером (поки не зроблено)");
-            Console.WriteLine("8 - Показати статистику та дослід ref/out (поки не зроблено)");
+            Console.WriteLine("8 - Показати максимум (out) та статистику");
             Console.WriteLine("0 - Вихід");
             Console.Write("Ваш вибір: ");
         }
@@ -135,7 +149,50 @@ namespace HousingRental
 
             values[count] = newValue;
             count++;
-            Console.WriteLine($"Значення {newValue:F2} грн додано. Поточна кількість записів у Main: {count}.");
+            Console.WriteLine($"Значення {newValue:F2} грн додано. Записів у сховищі: {count}.");
+        }
+
+        static void PrintRentPrices(double[] values, int count)
+        {
+            if (count <= 0)
+            {
+                Console.WriteLine("Список орендних ставок порожній.");
+                return;
+            }
+
+            Console.WriteLine("Збережені ціни оренди за місяць:\n");
+            Console.WriteLine($"{"№",5} | {"Ціна оренди (грн)",20}");
+            Console.WriteLine(new string('-', 28));
+
+            for (int i = 0; i < count; i++)
+            {
+                Console.WriteLine($"{i + 1,5} | {values[i],20:F2}");
+            }
+
+            Console.WriteLine(new string('-', 28));
+            Console.WriteLine($"Усього записів: {count}");
+        }
+
+        static void FindMaxRentPrice(double[] values, int count, out double maxValue, out int maxNumber)
+        {
+            if (count <= 0)
+            {
+                maxValue = 0;
+                maxNumber = 0;
+                return;
+            }
+
+            maxValue = values[0];
+            maxNumber = 1;
+
+            for (int i = 1; i < count; i++)
+            {
+                if (values[i] > maxValue)
+                {
+                    maxValue = values[i];
+                    maxNumber = i + 1;
+                }
+            }
         }
 
         static void ShowAbout()
