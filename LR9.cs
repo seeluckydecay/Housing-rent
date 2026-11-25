@@ -39,15 +39,7 @@ namespace HousingRental
                         break;
                     case "7": ShowNotImplemented(); Pause(); break;
                     case "8":
-                        FindMaxRentPrice(rentPrices, count, out double maxPrice, out int maxNumber);
-                        if (maxNumber > 0)
-                        {
-                            Console.WriteLine($"Найдорожча оренда: {maxPrice:F2} грн (запис №{maxNumber}).");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Масив порожній, максимум визначити неможливо.");
-                        }
+                        RunValueVsReferenceDemo();
                         Pause();
                         break;
                     case "0": running = false; ShowGoodbye(); break;
@@ -66,7 +58,7 @@ namespace HousingRental
             Console.WriteLine("5 - Додати значення ціни оренди у масив");
             Console.WriteLine("6 - Показати всі ціни з масиву");
             Console.WriteLine("7 - Видалити ціну за номером (поки не зроблено)");
-            Console.WriteLine("8 - Показати максимум (out) та статистику");
+            Console.WriteLine("8 - Дослід: передавання за значенням і посиланням");
             Console.WriteLine("0 - Вихід");
             Console.Write("Ваш вибір: ");
         }
@@ -193,6 +185,31 @@ namespace HousingRental
                     maxNumber = i + 1;
                 }
             }
+        }
+
+        static void TryModifyIntByValue(int floorNumber)
+        {
+            floorNumber = 99;
+        }
+
+        static void ModifyArrayElementByReference(double[] samplePrices)
+        {
+            samplePrices[0] = samplePrices[0] + 1500;
+        }
+
+        static void RunValueVsReferenceDemo()
+        {
+            int floor = 5;
+            Console.WriteLine("1. Передавання значимого типу (int) без ref:");
+            Console.WriteLine($"   До виклику методу: поверх = {floor}");
+            TryModifyIntByValue(floor);
+            Console.WriteLine($"   Після виклику методу: поверх = {floor} (оригінал не змінився, бо передалася копія)\n");
+
+            double[] demoPrices = { 10000, 12500, 15000 };
+            Console.WriteLine("2. Передавання масиву (посилального типу) у метод:");
+            Console.WriteLine($"   До виклику методу: demoPrices[0] = {demoPrices[0]:F2} грн");
+            ModifyArrayElementByReference(demoPrices);
+            Console.WriteLine($"   Після виклику методу: demoPrices[0] = {demoPrices[0]:F2} грн (змінився оригінал у пам'яті)");
         }
 
         static void ShowAbout()
