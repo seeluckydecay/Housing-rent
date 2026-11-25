@@ -57,7 +57,13 @@ namespace HousingRental
                             count);
                         Pause();
                         break;
-                    case "4": ShowNotImplemented(); Pause(); break;
+                    case "4":
+                        EditListing(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            count);
+                        Pause();
+                        break;
                     case "5": ShowNotImplemented(); Pause(); break;
                     case "6": HandleDistrictRoomsMenu(); Pause(); break;
                     case "7": ShowNotImplemented(); Pause(); break;
@@ -84,7 +90,7 @@ namespace HousingRental
             Console.WriteLine("1 - Показати всі оголошення");
             Console.WriteLine("2 - Додати оголошення");
             Console.WriteLine("3 - Знайти за умовою (адреса / діапазон ціни)");
-            Console.WriteLine("4 - Змінити оголошення (поки не зроблено)");
+            Console.WriteLine("4 - Змінити оголошення");
             Console.WriteLine("5 - Видалити оголошення (поки не зроблено)");
             Console.WriteLine("6 - Зведена таблиця вартості (райони / кімнати)");
             Console.WriteLine("7 - Зберегти у файл (поки не зроблено)");
@@ -210,6 +216,178 @@ namespace HousingRental
 
                 Console.WriteLine("Помилка: введіть «так» або «ні».");
             }
+        }
+
+        static int FindIndexById(int[] ids, int count, int id)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                if (ids[i] == id)
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        static void EditListing(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            int count)
+        {
+            if (count == 0)
+            {
+                Console.WriteLine("Сховище порожнє. Редагувати нічого.");
+                return;
+            }
+
+            int id = ReadInt("Введіть номер оголошення для редагування: ", 1, int.MaxValue);
+            int index = FindIndexById(ids, count, id);
+
+            if (index == -1)
+            {
+                Console.WriteLine($"Оголошення №{id} не знайдено.");
+                return;
+            }
+
+            Console.WriteLine($"\nРедагування оголошення №{ids[index]} (натисніть Enter, щоб залишити поле без змін):");
+
+            Console.Write($"Адреса [{addresses[index]}]: ");
+            string addressInput = Console.ReadLine();
+            if (addressInput != null && addressInput.Trim().Length > 0)
+            {
+                if (addressInput.Trim().Length >= 2)
+                {
+                    addresses[index] = addressInput.Trim();
+                }
+                else
+                {
+                    Console.WriteLine("Попередження: закоротка адреса, залишено попереднє значення.");
+                }
+            }
+
+            while (true)
+            {
+                Console.Write($"Кількість кімнат [{roomsCounts[index]}]: ");
+                string roomsInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(roomsInput))
+                {
+                    break;
+                }
+                if (int.TryParse(roomsInput, out int newRooms) && newRooms >= 1 && newRooms <= 20)
+                {
+                    roomsCounts[index] = newRooms;
+                    break;
+                }
+                Console.WriteLine("Помилка: потрібне ціле число від 1 до 20 або порожній Enter.");
+            }
+
+            while (true)
+            {
+                Console.Write($"Площа, м² [{areas[index]:F1}]: ");
+                string areaInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(areaInput))
+                {
+                    break;
+                }
+                if (double.TryParse(areaInput, out double newArea) && newArea >= 10 && newArea <= 1000)
+                {
+                    areas[index] = newArea;
+                    break;
+                }
+                Console.WriteLine("Помилка: потрібне число від 10 до 1000 або порожній Enter.");
+            }
+
+            while (true)
+            {
+                Console.Write($"Поверх [{floors[index]}]: ");
+                string floorInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(floorInput))
+                {
+                    break;
+                }
+                if (int.TryParse(floorInput, out int newFloor) && newFloor >= 1 && newFloor <= 100)
+                {
+                    floors[index] = newFloor;
+                    break;
+                }
+                Console.WriteLine("Помилка: потрібне ціле число від 1 до 100 або порожній Enter.");
+            }
+
+            while (true)
+            {
+                Console.Write($"Ціна за місяць, грн [{monthlyPrices[index]:F0}]: ");
+                string priceInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(priceInput))
+                {
+                    break;
+                }
+                if (double.TryParse(priceInput, out double newPrice) && newPrice >= 500 && newPrice <= 500000)
+                {
+                    monthlyPrices[index] = newPrice;
+                    break;
+                }
+                Console.WriteLine("Помилка: потрібне число від 500 до 500000 або порожній Enter.");
+            }
+
+            while (true)
+            {
+                Console.Write($"Дата публікації [{publicationDates[index]:dd.MM.yyyy}]: ");
+                string dateInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(dateInput))
+                {
+                    break;
+                }
+                if (DateTime.TryParseExact(dateInput.Trim(), "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime newDate)
+                    && newDate.Year >= 1900 && newDate <= DateTime.Today)
+                {
+                    publicationDates[index] = newDate;
+                    break;
+                }
+                Console.WriteLine("Помилка: введіть дату у форматі дд.мм.рррр або порожній Enter.");
+            }
+
+            while (true)
+            {
+                string currentRented = isRentedFlags[index] ? "так" : "ні";
+                Console.Write($"Чи здано зараз [{currentRented}]: ");
+                string rentedInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(rentedInput))
+                {
+                    break;
+                }
+                string norm = rentedInput.Trim().ToLower();
+                if (norm == "так")
+                {
+                    isRentedFlags[index] = true;
+                    break;
+                }
+                if (norm == "ні")
+                {
+                    isRentedFlags[index] = false;
+                    break;
+                }
+                Console.WriteLine("Помилка: введіть «так», «ні» або порожній Enter.");
+            }
+
+            while (true)
+            {
+                Console.Write($"Код району [{districtIds[index]}]: ");
+                string districtInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(districtInput))
+                {
+                    break;
+                }
+                if (int.TryParse(districtInput, out int newDistrict) && newDistrict >= 1 && newDistrict <= 10)
+                {
+                    districtIds[index] = newDistrict;
+                    break;
+                }
+                Console.WriteLine("Помилка: потрібне ціле число від 1 до 10 або порожній Enter.");
+            }
+
+            Console.WriteLine($"\nОголошення №{ids[index]} успішно оновлено.");
         }
 
         static void PrintTableHeader()
