@@ -57,7 +57,13 @@ namespace HousingRental
                     case "7": ShowNotImplemented(); Pause(); break;
                     case "8": ShowNotImplemented(); Pause(); break;
                     case "9": ShowNotImplemented(); Pause(); break;
-                    case "10": ShowNotImplemented(); Pause(); break;
+                    case "10":
+                        SeedDemoListings(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            ref count, ref nextId, Capacity);
+                        Pause();
+                        break;
                     case "11": ShowAbout(); Pause(); break;
                     case "0": running = false; ShowGoodbye(); break;
                     default: ShowInvalidChoice(); Pause(); break;
@@ -77,7 +83,7 @@ namespace HousingRental
             Console.WriteLine("7 - Зберегти у файл (поки не зроблено)");
             Console.WriteLine("8 - Завантажити з файлу (поки не зроблено)");
             Console.WriteLine("9 - Експорт у CSV (поки не зроблено)");
-            Console.WriteLine("10 - Заповнити тестовими оголошеннями (поки не зроблено)");
+            Console.WriteLine("10 - Заповнити тестовими оголошеннями");
             Console.WriteLine("11 - Довідка про систему та сутність");
             Console.WriteLine("0 - Вихід");
             Console.Write("Ваш вибір: ");
@@ -241,6 +247,71 @@ namespace HousingRental
             nextId++;
 
             Console.WriteLine($"\nДодано оголошення №{ids[count - 1]}. Усього записів: {count}.");
+        }
+
+        static void SeedDemoListings(
+            int[] ids,
+            string[] addresses,
+            int[] roomsCounts,
+            double[] areas,
+            int[] floors,
+            double[] monthlyPrices,
+            DateTime[] publicationDates,
+            bool[] isRentedFlags,
+            int[] districtIds,
+            ref int count,
+            ref int nextId,
+            int capacity)
+        {
+            string[] demoAddresses =
+            {
+                "вул. Соборна, 14, кв. 5",
+                "просп. Миру, 82, кв. 19",
+                "вул. Шевченка, 7, кв. 3",
+                "вул. Київська, 105, кв. 44",
+                "бульв. Незалежності, 21, кв. 12",
+                "вул. Лесі Українки, 30, кв. 8"
+            };
+            int[] demoRooms = { 1, 2, 3, 2, 1, 4 };
+            double[] demoAreas = { 36.5, 54.0, 78.2, 49.0, 32.0, 96.5 };
+            int[] demoFloors = { 3, 7, 2, 9, 5, 4 };
+            double[] demoPrices = { 9500, 14000, 21500, 12500, 8800, 26000 };
+            DateTime[] demoDates =
+            {
+                new DateTime(2026, 10, 12),
+                new DateTime(2026, 10, 18),
+                new DateTime(2026, 11, 2),
+                new DateTime(2026, 11, 10),
+                new DateTime(2026, 11, 19),
+                new DateTime(2026, 11, 22)
+            };
+            bool[] demoRented = { false, true, false, false, true, false };
+            int[] demoDistricts = { 1, 2, 1, 3, 2, 4 };
+
+            int added = 0;
+            for (int i = 0; i < demoAddresses.Length; i++)
+            {
+                if (count == capacity)
+                {
+                    break;
+                }
+
+                ids[count] = nextId;
+                addresses[count] = demoAddresses[i];
+                roomsCounts[count] = demoRooms[i];
+                areas[count] = demoAreas[i];
+                floors[count] = demoFloors[i];
+                monthlyPrices[count] = demoPrices[i];
+                publicationDates[count] = demoDates[i];
+                isRentedFlags[count] = demoRented[i];
+                districtIds[count] = demoDistricts[i];
+
+                count++;
+                nextId++;
+                added++;
+            }
+
+            Console.WriteLine($"Додано тестових оголошень: {added}. Усього записів у сховищі: {count}.");
         }
 
         static void PrintAllListings(
