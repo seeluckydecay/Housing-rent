@@ -51,6 +51,10 @@ namespace HousingRental
                         Pause();
                         break;
                     case "8":
+                        PrintRentStatistics(rentPrices, count);
+                        Pause();
+                        break;
+                    case "9":
                         RunValueVsReferenceDemo();
                         Pause();
                         break;
@@ -70,7 +74,8 @@ namespace HousingRental
             Console.WriteLine("5 - Додати значення ціни оренди у масив");
             Console.WriteLine("6 - Показати всі ціни з масиву");
             Console.WriteLine("7 - Видалити ціну за номером");
-            Console.WriteLine("8 - Дослід: передавання за значенням і посиланням");
+            Console.WriteLine("8 - Показати статистику масиву (out-параметри)");
+            Console.WriteLine("9 - Дослід: передавання за значенням і посиланням");
             Console.WriteLine("0 - Вихід");
             Console.Write("Ваш вибір: ");
         }
@@ -211,6 +216,35 @@ namespace HousingRental
                     maxNumber = i + 1;
                 }
             }
+        }
+
+        static void CalculateRentStatistics(double[] values, int count, out double sum, out double average)
+        {
+            sum = 0;
+            for (int i = 0; i < count; i++)
+            {
+                sum += values[i];
+            }
+
+            average = count > 0 ? sum / count : 0;
+        }
+
+        static void PrintRentStatistics(double[] values, int count)
+        {
+            if (count <= 0)
+            {
+                Console.WriteLine("Неможливо порахувати статистику: масив порожній.");
+                return;
+            }
+
+            FindMaxRentPrice(values, count, out double maxPrice, out int maxNumber);
+            CalculateRentStatistics(values, count, out double totalSum, out double avgPrice);
+
+            Console.WriteLine("Статистика збережених цін оренди:");
+            Console.WriteLine($"  Кількість записів: {count}");
+            Console.WriteLine($"  Загальна сума: {totalSum:F2} грн");
+            Console.WriteLine($"  Середня ціна оренди: {avgPrice:F2} грн/міс");
+            Console.WriteLine($"  Максимальна ціна: {maxPrice:F2} грн (запис №{maxNumber})");
         }
 
         static void TryModifyIntByValue(int floorNumber)
