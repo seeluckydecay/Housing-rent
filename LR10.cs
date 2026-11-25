@@ -314,6 +314,62 @@ namespace HousingRental
             Console.WriteLine($"Додано тестових оголошень: {added}. Усього записів у сховищі: {count}.");
         }
 
+        static double CalculateAveragePricePerSqm(double[] monthlyPrices, double[] areas, int count)
+        {
+            if (count <= 0)
+            {
+                return 0;
+            }
+
+            double sumPricePerSqm = 0;
+            int validCount = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (areas[i] > 0)
+                {
+                    sumPricePerSqm += monthlyPrices[i] / areas[i];
+                    validCount++;
+                }
+            }
+
+            return validCount > 0 ? sumPricePerSqm / validCount : 0;
+        }
+
+        static void PrintAveragePricePerSqmByDistrict(
+            double[] monthlyPrices,
+            double[] areas,
+            int[] districtIds,
+            int count)
+        {
+            if (count <= 0)
+            {
+                return;
+            }
+
+            Console.WriteLine("\nСередня ціна за 1 м² по районах:");
+            for (int district = 1; district <= 10; district++)
+            {
+                double sumSqmPrice = 0;
+                int districtCount = 0;
+
+                for (int i = 0; i < count; i++)
+                {
+                    if (districtIds[i] == district && areas[i] > 0)
+                    {
+                        sumSqmPrice += monthlyPrices[i] / areas[i];
+                        districtCount++;
+                    }
+                }
+
+                if (districtCount > 0)
+                {
+                    double avgDistrictSqm = sumSqmPrice / districtCount;
+                    Console.WriteLine($"  Район №{district}: {avgDistrictSqm:F2} грн/м² (оголошень: {districtCount})");
+                }
+            }
+        }
+
         static void PrintAllListings(
             int[] ids,
             string[] addresses,
@@ -343,7 +399,10 @@ namespace HousingRental
             }
 
             Console.WriteLine(new string('-', 95));
-            Console.WriteLine($"Записів: {count}.");
+
+            double overallAvgSqm = CalculateAveragePricePerSqm(monthlyPrices, areas, count);
+            Console.WriteLine($"Записів: {count}. Загальна середня ціна за 1 м²: {overallAvgSqm:F2} грн/м².");
+            PrintAveragePricePerSqmByDistrict(monthlyPrices, areas, districtIds, count);
         }
 
         static void ShowAbout()
