@@ -37,7 +37,19 @@ namespace HousingRental
                         PrintRentPrices(rentPrices, count);
                         Pause();
                         break;
-                    case "7": ShowNotImplemented(); Pause(); break;
+                    case "7":
+                        if (count == 0)
+                        {
+                            Console.WriteLine("Масив порожній, видаляти нічого.");
+                        }
+                        else
+                        {
+                            PrintRentPrices(rentPrices, count);
+                            int removeNum = ReadInt($"\nВведіть номер запису для видалення (від 1 до {count}): ", 1, count);
+                            RemoveAt(rentPrices, ref count, removeNum - 1);
+                        }
+                        Pause();
+                        break;
                     case "8":
                         RunValueVsReferenceDemo();
                         Pause();
@@ -57,15 +69,10 @@ namespace HousingRental
             Console.WriteLine("4 - Розрахунок ціни за квадратний метр (приклад)");
             Console.WriteLine("5 - Додати значення ціни оренди у масив");
             Console.WriteLine("6 - Показати всі ціни з масиву");
-            Console.WriteLine("7 - Видалити ціну за номером (поки не зроблено)");
+            Console.WriteLine("7 - Видалити ціну за номером");
             Console.WriteLine("8 - Дослід: передавання за значенням і посиланням");
             Console.WriteLine("0 - Вихід");
             Console.Write("Ваш вибір: ");
-        }
-
-        static void ShowNotImplemented()
-        {
-            Console.WriteLine("Цей функціонал буде додано у наступних кроках.");
         }
 
         static void ShowGoodbye()
@@ -142,6 +149,25 @@ namespace HousingRental
             values[count] = newValue;
             count++;
             Console.WriteLine($"Значення {newValue:F2} грн додано. Записів у сховищі: {count}.");
+        }
+
+        static void RemoveAt(double[] values, ref int count, int index)
+        {
+            if (index < 0 || index >= count)
+            {
+                Console.WriteLine("Помилка: некоректний індекс елемента для видалення.");
+                return;
+            }
+
+            double removedValue = values[index];
+
+            for (int i = index; i < count - 1; i++)
+            {
+                values[i] = values[i + 1];
+            }
+
+            count--;
+            Console.WriteLine($"Запис №{index + 1} ({removedValue:F2} грн) видалено. Залишилось записів: {count}.");
         }
 
         static void PrintRentPrices(double[] values, int count)
