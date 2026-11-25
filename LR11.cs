@@ -83,7 +83,10 @@ namespace HousingRental
                         Pause();
                         break;
                     case "11": ShowAbout(); Pause(); break;
-                    case "12": ShowNotImplemented(); Pause(); break;
+                    case "12":
+                        ShowSummary(ids, monthlyPrices, areas, districtIds, count);
+                        Pause();
+                        break;
                     case "0": running = false; ShowGoodbye(); break;
                     default: ShowInvalidChoice(); Pause(); break;
                 }
@@ -104,7 +107,7 @@ namespace HousingRental
             Console.WriteLine("9 - Експорт у CSV (поки не зроблено)");
             Console.WriteLine("10 - Заповнити тестовими оголошеннями");
             Console.WriteLine("11 - Довідка про систему та сутність");
-            Console.WriteLine("12 - Підсумки по оголошеннях (поки не зроблено)");
+            Console.WriteLine("12 - Підсумки по оголошеннях");
             Console.WriteLine("0 - Вихід");
             Console.Write("Ваш вибір: ");
         }
@@ -222,6 +225,97 @@ namespace HousingRental
 
                 Console.WriteLine("Помилка: введіть «так» або «ні».");
             }
+        }
+
+        static void CalculateSummarySinglePass(
+            int[] ids,
+            double[] monthlyPrices,
+            double[] areas,
+            int[] districtIds,
+            int count,
+            out double avgPricePerSqm,
+            out double maxPrice,
+            out int maxPriceId,
+            out double minPrice,
+            out int minPriceId,
+            out double avgMonthlyPrice)
+        {
+            if (count <= 0)
+            {
+                avgPricePerSqm = 0;
+                maxPrice = 0;
+                maxPriceId = 0;
+                minPrice = 0;
+                minPriceId = 0;
+                avgMonthlyPrice = 0;
+                return;
+            }
+
+            double sumPrices = monthlyPrices[0];
+            double sumPricePerSqm = areas[0] > 0 ? monthlyPrices[0] / areas[0] : 0;
+            int validAreaCount = areas[0] > 0 ? 1 : 0;
+
+            maxPrice = monthlyPrices[0];
+            maxPriceId = ids[0];
+            minPrice = monthlyPrices[0];
+            minPriceId = ids[0];
+
+            for (int i = 1; i < count; i++)
+            {
+                double currentPrice = monthlyPrices[i];
+                sumPrices += currentPrice;
+
+                if (areas[i] > 0)
+                {
+                    sumPricePerSqm += currentPrice / areas[i];
+                    validAreaCount++;
+                }
+
+                if (currentPrice > maxPrice)
+                {
+                    maxPrice = currentPrice;
+                    maxPriceId = ids[i];
+                }
+
+                if (currentPrice < minPrice)
+                {
+                    minPrice = currentPrice;
+                    minPriceId = ids[i];
+                }
+            }
+
+            avgMonthlyPrice = sumPrices / count;
+            avgPricePerSqm = validAreaCount > 0 ? sumPricePerSqm / validAreaCount : 0;
+        }
+
+        static void ShowSummary(
+            int[] ids,
+            double[] monthlyPrices,
+            double[] areas,
+            int[] districtIds,
+            int count)
+        {
+            if (count == 0)
+            {
+                Console.WriteLine("Сховище порожнє. Немає даних для підрахунку підсумків.");
+                return;
+            }
+
+            CalculateSummarySinglePass(
+                ids, monthlyPrices, areas, districtIds, count,
+                out double avgPricePerSqm,
+                out double maxPrice,
+                out int maxPriceId,
+                out double minPrice,
+                out int minPriceId,
+                out double avgMonthlyPrice);
+
+            Console.WriteLine("=== Підсумки по оголошеннях ===");
+            Console.WriteLine($"  Кількість записів: {count}");
+            Console.WriteLine($"  Середня ціна за 1 м² (підсумкова величина теми): {avgPricePerSqm:F2} грн/м²");
+            Console.WriteLine($"  Найбільша місячна ціна: {maxPrice:F2} грн (оголошення №{maxPriceId})");
+            Console.WriteLine($"  Найменша місячна ціна: {minPrice:F2} грн (оголошення №{minPriceId})");
+            Console.WriteLine($"  Середня місячна ціна оренди: {avgMonthlyPrice:F2} грн");
         }
 
         static int FindIndexById(int[] ids, int count, int id)
