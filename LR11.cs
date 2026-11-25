@@ -64,7 +64,13 @@ namespace HousingRental
                             count);
                         Pause();
                         break;
-                    case "5": ShowNotImplemented(); Pause(); break;
+                    case "5":
+                        DeleteListing(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            ref count);
+                        Pause();
+                        break;
                     case "6": HandleDistrictRoomsMenu(); Pause(); break;
                     case "7": ShowNotImplemented(); Pause(); break;
                     case "8": ShowNotImplemented(); Pause(); break;
@@ -91,7 +97,7 @@ namespace HousingRental
             Console.WriteLine("2 - Додати оголошення");
             Console.WriteLine("3 - Знайти за умовою (адреса / діапазон ціни)");
             Console.WriteLine("4 - Змінити оголошення");
-            Console.WriteLine("5 - Видалити оголошення (поки не зроблено)");
+            Console.WriteLine("5 - Видалити оголошення");
             Console.WriteLine("6 - Зведена таблиця вартості (райони / кімнати)");
             Console.WriteLine("7 - Зберегти у файл (поки не зроблено)");
             Console.WriteLine("8 - Завантажити з файлу (поки не зроблено)");
@@ -228,6 +234,52 @@ namespace HousingRental
                 }
             }
             return -1;
+        }
+
+        static void DeleteListing(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            ref int count)
+        {
+            if (count == 0)
+            {
+                Console.WriteLine("Сховище порожнє. Видаляти нічого.");
+                return;
+            }
+
+            int id = ReadInt("Введіть номер оголошення для видалення: ", 1, int.MaxValue);
+            int index = FindIndexById(ids, count, id);
+
+            if (index == -1)
+            {
+                Console.WriteLine($"Оголошення №{id} немає.");
+                return;
+            }
+
+            Console.Write($"Справді видалити оголошення №{id} ({addresses[index]})? (так/ні): ");
+            string confirm = Console.ReadLine();
+            if (confirm == null || confirm.Trim().ToLower() != "так")
+            {
+                Console.WriteLine("Видалення скасовано.");
+                return;
+            }
+
+            for (int i = index; i < count - 1; i++)
+            {
+                ids[i] = ids[i + 1];
+                addresses[i] = addresses[i + 1];
+                roomsCounts[i] = roomsCounts[i + 1];
+                areas[i] = areas[i + 1];
+                floors[i] = floors[i + 1];
+                monthlyPrices[i] = monthlyPrices[i + 1];
+                publicationDates[i] = publicationDates[i + 1];
+                isRentedFlags[i] = isRentedFlags[i + 1];
+                districtIds[i] = districtIds[i + 1];
+            }
+
+            count--;
+            Console.WriteLine($"Оголошення №{id} видалено. Лишилося записів: {count}.");
         }
 
         static void EditListing(
