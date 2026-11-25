@@ -1,0 +1,573 @@
+using System;
+using System.Globalization;
+using System.Text;
+
+namespace HousingRental
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding = Encoding.UTF8;
+
+            const int Capacity = 100;
+
+            int[] ids = new int[Capacity];
+            string[] addresses = new string[Capacity];
+            int[] roomsCounts = new int[Capacity];
+            double[] areas = new double[Capacity];
+            int[] floors = new int[Capacity];
+            double[] monthlyPrices = new double[Capacity];
+            DateTime[] publicationDates = new DateTime[Capacity];
+            bool[] isRentedFlags = new bool[Capacity];
+            int[] districtIds = new int[Capacity];
+
+            int count = 0;
+            int nextId = 1;
+
+            bool running = true;
+
+            while (running)
+            {
+                ShowMenu();
+                string choice = Console.ReadLine();
+                Console.WriteLine();
+
+                switch (choice)
+                {
+                    case "1":
+                        PrintAllListings(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            count);
+                        Pause();
+                        break;
+                    case "2":
+                        AddListing(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            ref count, ref nextId, Capacity);
+                        Pause();
+                        break;
+                    case "3":
+                        HandleSearchMenu(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            count);
+                        Pause();
+                        break;
+                    case "4": ShowNotImplemented(); Pause(); break;
+                    case "5": ShowNotImplemented(); Pause(); break;
+                    case "6": HandleDistrictRoomsMenu(); Pause(); break;
+                    case "7": ShowNotImplemented(); Pause(); break;
+                    case "8": ShowNotImplemented(); Pause(); break;
+                    case "9": ShowNotImplemented(); Pause(); break;
+                    case "10":
+                        SeedDemoListings(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            ref count, ref nextId, Capacity);
+                        Pause();
+                        break;
+                    case "11": ShowAbout(); Pause(); break;
+                    case "12": ShowNotImplemented(); Pause(); break;
+                    case "0": running = false; ShowGoodbye(); break;
+                    default: ShowInvalidChoice(); Pause(); break;
+                }
+            }
+        }
+
+        static void ShowMenu()
+        {
+            Console.WriteLine("=== Оренда житла ===");
+            Console.WriteLine("1 - Показати всі оголошення");
+            Console.WriteLine("2 - Додати оголошення");
+            Console.WriteLine("3 - Знайти за умовою (адреса / діапазон ціни)");
+            Console.WriteLine("4 - Змінити оголошення (поки не зроблено)");
+            Console.WriteLine("5 - Видалити оголошення (поки не зроблено)");
+            Console.WriteLine("6 - Зведена таблиця вартості (райони / кімнати)");
+            Console.WriteLine("7 - Зберегти у файл (поки не зроблено)");
+            Console.WriteLine("8 - Завантажити з файлу (поки не зроблено)");
+            Console.WriteLine("9 - Експорт у CSV (поки не зроблено)");
+            Console.WriteLine("10 - Заповнити тестовими оголошеннями");
+            Console.WriteLine("11 - Довідка про систему та сутність");
+            Console.WriteLine("12 - Підсумки по оголошеннях (поки не зроблено)");
+            Console.WriteLine("0 - Вихід");
+            Console.Write("Ваш вибір: ");
+        }
+
+        static void ShowNotImplemented()
+        {
+            Console.WriteLine("Поки не зроблено.");
+        }
+
+        static void ShowGoodbye()
+        {
+            Console.WriteLine("Роботу завершено. До побачення!");
+        }
+
+        static void ShowInvalidChoice()
+        {
+            Console.WriteLine("Помилка: такого пункту меню не існує. Спробуйте ще раз.");
+        }
+
+        static void Pause()
+        {
+            Console.WriteLine("\nНатисніть будь-яку клавішу для повернення в меню...");
+            Console.ReadKey(true);
+            Console.Clear();
+        }
+
+        static int ReadInt(string prompt, int min, int max)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (int.TryParse(input, out int value) && value >= min && value <= max)
+                {
+                    return value;
+                }
+
+                Console.WriteLine($"Помилка: потрібне ціле число від {min} до {max}.");
+            }
+        }
+
+        static double ReadDouble(string prompt, double min, double max)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (double.TryParse(input, out double value) && value >= min && value <= max)
+                {
+                    return value;
+                }
+
+                Console.WriteLine($"Помилка: потрібне число від {min} до {max}.");
+            }
+        }
+
+        static string ReadText(string prompt, int minLength)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (input != null && input.Trim().Length >= minLength)
+                {
+                    return input.Trim();
+                }
+
+                Console.WriteLine($"Помилка: рядок не може бути порожнім (мінімум {minLength} символи).");
+            }
+        }
+
+        static DateTime ReadDate(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (DateTime.TryParseExact(input, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                {
+                    if (date.Year >= 1900 && date <= DateTime.Today)
+                    {
+                        return date;
+                    }
+                    Console.WriteLine("Помилка: дата має бути від 01.01.1900 і не в майбутньому.");
+                    continue;
+                }
+
+                Console.WriteLine("Помилка: введіть коректну дату у форматі дд.мм.рррр.");
+            }
+        }
+
+        static bool ReadBool(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string input = Console.ReadLine();
+
+                if (input != null)
+                {
+                    string normalized = input.Trim().ToLower();
+                    if (normalized == "так")
+                    {
+                        return true;
+                    }
+                    if (normalized == "ні")
+                    {
+                        return false;
+                    }
+                }
+
+                Console.WriteLine("Помилка: введіть «так» або «ні».");
+            }
+        }
+
+        static void PrintTableHeader()
+        {
+            Console.WriteLine($"{"№",4} {"Адреса",-28} {"Кімн.",6} {"Площа",8} {"Пов.",5} {"Ціна/міс",11} {"Дата публ.",12} {"Здано",7} {"Район",6}");
+            Console.WriteLine(new string('-', 95));
+        }
+
+        static void PrintListingRow(
+            int id, string address, int rooms, double area,
+            int floor, double price, DateTime pubDate, bool isRented, int districtId)
+        {
+            string rentedMark = isRented ? "так" : "ні";
+            Console.WriteLine(
+                $"{id,4} {address,-28} {rooms,6} {area,8:F1} {floor,5} {price,11:F0} {pubDate,12:dd.MM.yyyy} {rentedMark,7} {districtId,6}");
+        }
+
+        static void HandleSearchMenu(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            int count)
+        {
+            if (count == 0)
+            {
+                Console.WriteLine("Сховище порожнє. Пошук неможливий.");
+                return;
+            }
+
+            Console.WriteLine("Оберіть режим пошуку:");
+            Console.WriteLine("  1 - За частиною адреси");
+            Console.WriteLine("  2 - За діапазоном місячної ціни");
+            int mode = ReadInt("Ваш вибір (1 або 2): ", 1, 2);
+            Console.WriteLine();
+
+            if (mode == 1)
+            {
+                string query = ReadText("Введіть частину адреси для пошуку: ", 1);
+                Console.WriteLine();
+                SearchByAddress(
+                    ids, addresses, roomsCounts, areas, floors,
+                    monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                    count, query);
+            }
+            else
+            {
+                double minPrice = ReadDouble("Мінімальна ціна, грн (0 - 500000): ", 0, 500000);
+                double maxPrice = ReadDouble("Максимальна ціна, грн (0 - 500000): ", 0, 500000);
+                Console.WriteLine();
+                SearchByPriceRange(
+                    ids, addresses, roomsCounts, areas, floors,
+                    monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                    count, minPrice, maxPrice);
+            }
+        }
+
+        static void SearchByAddress(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            int count, string query)
+        {
+            int foundCount = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (addresses[i].Contains(query))
+                {
+                    if (foundCount == 0)
+                    {
+                        PrintTableHeader();
+                    }
+
+                    PrintListingRow(
+                        ids[i], addresses[i], roomsCounts[i], areas[i],
+                        floors[i], monthlyPrices[i], publicationDates[i], isRentedFlags[i], districtIds[i]);
+                    foundCount++;
+                }
+            }
+
+            if (foundCount == 0)
+            {
+                Console.WriteLine($"За запитом «{query}» оголошень не знайдено.");
+            }
+            else
+            {
+                Console.WriteLine(new string('-', 95));
+                Console.WriteLine($"Знайдено оголошень: {foundCount}.");
+            }
+        }
+
+        static void SearchByPriceRange(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            int count, double fromPrice, double toPrice)
+        {
+            if (fromPrice > toPrice)
+            {
+                Console.WriteLine("Помилка: нижня межа ціни не може бути більшою за верхню.");
+                return;
+            }
+
+            int foundCount = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (monthlyPrices[i] >= fromPrice && monthlyPrices[i] <= toPrice)
+                {
+                    if (foundCount == 0)
+                    {
+                        PrintTableHeader();
+                    }
+
+                    PrintListingRow(
+                        ids[i], addresses[i], roomsCounts[i], areas[i],
+                        floors[i], monthlyPrices[i], publicationDates[i], isRentedFlags[i], districtIds[i]);
+                    foundCount++;
+                }
+            }
+
+            if (foundCount == 0)
+            {
+                Console.WriteLine($"Оголошень із ціною від {fromPrice:F0} до {toPrice:F0} грн не знайдено.");
+            }
+            else
+            {
+                Console.WriteLine(new string('-', 95));
+                Console.WriteLine($"Знайдено оголошень у діапазоні: {foundCount}.");
+            }
+        }
+
+        static void AddListing(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            ref int count, ref int nextId, int capacity)
+        {
+            if (count == capacity)
+            {
+                Console.WriteLine("Сховище заповнене, видаліть зайві записи.");
+                return;
+            }
+
+            string address = ReadText("Адреса (вулиця та номер будинку): ", 2);
+            int rooms = ReadInt("Кількість кімнат (1 - 20): ", 1, 20);
+            double area = ReadDouble("Площа, м² (10 - 1000): ", 10, 1000);
+            int floor = ReadInt("Поверх (1 - 100): ", 1, 100);
+            double price = ReadDouble("Ціна за місяць, грн (500 - 500000): ", 500, 500000);
+            DateTime pubDate = ReadDate("Дата публікації (дд.мм.рррр): ");
+            bool isRented = ReadBool("Чи здано зараз (так/ні): ");
+            int districtId = ReadInt("Код району з довідника (1 - 10): ", 1, 10);
+
+            ids[count] = nextId;
+            addresses[count] = address;
+            roomsCounts[count] = rooms;
+            areas[count] = area;
+            floors[count] = floor;
+            monthlyPrices[count] = price;
+            publicationDates[count] = pubDate;
+            isRentedFlags[count] = isRented;
+            districtIds[count] = districtId;
+
+            count++;
+            nextId++;
+
+            Console.WriteLine($"\nДодано оголошення №{ids[count - 1]}. Усього записів: {count}.");
+        }
+
+        static void SeedDemoListings(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            ref int count, ref int nextId, int capacity)
+        {
+            string[] demoAddresses =
+            {
+                "вул. Соборна, 14, кв. 5",
+                "просп. Миру, 82, кв. 19",
+                "вул. Шевченка, 7, кв. 3",
+                "вул. Київська, 105, кв. 44",
+                "бульв. Незалежності, 21, кв. 12",
+                "вул. Лесі Українки, 30, кв. 8"
+            };
+            int[] demoRooms = { 1, 2, 3, 2, 1, 4 };
+            double[] demoAreas = { 36.5, 54.0, 78.2, 49.0, 32.0, 96.5 };
+            int[] demoFloors = { 3, 7, 2, 9, 5, 4 };
+            double[] demoPrices = { 9500, 14000, 21500, 12500, 8800, 26000 };
+            DateTime[] demoDates =
+            {
+                new DateTime(2026, 10, 12),
+                new DateTime(2026, 10, 18),
+                new DateTime(2026, 11, 2),
+                new DateTime(2026, 11, 10),
+                new DateTime(2026, 11, 19),
+                new DateTime(2026, 11, 22)
+            };
+            bool[] demoRented = { false, true, false, false, true, false };
+            int[] demoDistricts = { 1, 2, 1, 3, 2, 4 };
+
+            int added = 0;
+            for (int i = 0; i < demoAddresses.Length; i++)
+            {
+                if (count == capacity)
+                {
+                    break;
+                }
+
+                ids[count] = nextId;
+                addresses[count] = demoAddresses[i];
+                roomsCounts[count] = demoRooms[i];
+                areas[count] = demoAreas[i];
+                floors[count] = demoFloors[i];
+                monthlyPrices[count] = demoPrices[i];
+                publicationDates[count] = demoDates[i];
+                isRentedFlags[count] = demoRented[i];
+                districtIds[count] = demoDistricts[i];
+
+                count++;
+                nextId++;
+                added++;
+            }
+
+            Console.WriteLine($"Додано тестових оголошень: {added}. Усього записів у сховищі: {count}.");
+        }
+
+        static double CalculateAveragePricePerSqm(double[] monthlyPrices, double[] areas, int count)
+        {
+            if (count <= 0)
+            {
+                return 0;
+            }
+
+            double sumPricePerSqm = 0;
+            int validCount = 0;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (areas[i] > 0)
+                {
+                    sumPricePerSqm += monthlyPrices[i] / areas[i];
+                    validCount++;
+                }
+            }
+
+            return validCount > 0 ? sumPricePerSqm / validCount : 0;
+        }
+
+        static void PrintAllListings(
+            int[] ids, string[] addresses, int[] roomsCounts,
+            double[] areas, int[] floors, double[] monthlyPrices,
+            DateTime[] publicationDates, bool[] isRentedFlags, int[] districtIds,
+            int count)
+        {
+            if (count == 0)
+            {
+                Console.WriteLine("Записів поки немає.");
+                return;
+            }
+
+            PrintTableHeader();
+
+            for (int i = 0; i < count; i++)
+            {
+                PrintListingRow(
+                    ids[i], addresses[i], roomsCounts[i], areas[i],
+                    floors[i], monthlyPrices[i], publicationDates[i], isRentedFlags[i], districtIds[i]);
+            }
+
+            Console.WriteLine(new string('-', 95));
+
+            double overallAvgSqm = CalculateAveragePricePerSqm(monthlyPrices, areas, count);
+            Console.WriteLine($"Записів: {count}. Загальна середня ціна за 1 м²: {overallAvgSqm:F2} грн/м².");
+        }
+
+        static void ShowAbout()
+        {
+            Console.WriteLine("Тема проєкту: Оренда житла (Варіант №27)");
+            Console.WriteLine("Сутності: Користувач, Оголошення (головна), Район (довідник).");
+            Console.WriteLine("\nПоля головної сутності «Оголошення» (9 полів):");
+            Console.WriteLine("  1. int код");
+            Console.WriteLine("  2. string адреса");
+            Console.WriteLine("  3. int кількість кімнат");
+            Console.WriteLine("  4. double площа");
+            Console.WriteLine("  5. int поверх");
+            Console.WriteLine("  6. double ціна за місяць");
+            Console.WriteLine("  7. DateTime дата публікації");
+            Console.WriteLine("  8. bool чи здано");
+            Console.WriteLine("  9. int код району (посилання на довідник)");
+            Console.WriteLine("\nПідсумкова величина: середня ціна за квадратний метр по районах.");
+        }
+
+        static double CalculateCellPrice(int districtNumber, int roomsCount)
+        {
+            return 6000 + districtNumber * 1200 + roomsCount * 2500;
+        }
+
+        static void HandleDistrictRoomsMenu()
+        {
+            int rows = ReadInt("Введіть кількість районів (від 1 до 20): ", 1, 20);
+            int cols = ReadInt("Введіть максимальну кількість кімнат (від 1 до 10): ", 1, 10);
+            Console.WriteLine();
+
+            PrintDistrictRoomsTable(rows, cols);
+        }
+
+        static void PrintDistrictRoomsTable(int rows, int cols)
+        {
+            if (rows <= 0 || cols <= 0)
+            {
+                Console.WriteLine("Помилка: розміри таблиці мають бути більшими за нуль.");
+                return;
+            }
+
+            Console.WriteLine("Зведена таблиця вартості оренди за районами та кімнатами (грн/міс):\n");
+
+            Console.Write($"{"Район \\ Кімнати",-16}");
+            for (int col = 1; col <= cols; col++)
+            {
+                Console.Write($"{col + " кімн.",12}");
+            }
+            Console.WriteLine($"{"Підсумок",14}");
+
+            int lineWidth = 16 + cols * 12 + 14;
+            Console.WriteLine(new string('-', lineWidth));
+
+            for (int row = 1; row <= rows; row++)
+            {
+                Console.Write($"{"Район №" + row,-16}");
+                double rowSum = 0;
+
+                for (int col = 1; col <= cols; col++)
+                {
+                    double price = CalculateCellPrice(row, col);
+                    rowSum += price;
+                    Console.Write($"{price,12:F0}");
+                }
+
+                Console.WriteLine($"{rowSum,14:F0}");
+            }
+
+            Console.WriteLine(new string('-', lineWidth));
+
+            Console.Write($"{"Разом по стовп.",-16}");
+            double grandTotal = 0;
+
+            for (int col = 1; col <= cols; col++)
+            {
+                double colSum = 0;
+                for (int row = 1; row <= rows; row++)
+                {
+                    colSum += CalculateCellPrice(row, col);
+                }
+                grandTotal += colSum;
+                Console.Write($"{colSum,12:F0}");
+            }
+
+            Console.WriteLine($"{grandTotal,14:F0}");
+        }
+    }
+}
