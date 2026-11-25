@@ -36,7 +36,13 @@ namespace HousingRental
 
                 switch (choice)
                 {
-                    case "1": ShowNotImplemented(); Pause(); break;
+                    case "1":
+                        PrintAllListings(
+                            ids, addresses, roomsCounts, areas, floors,
+                            monthlyPrices, publicationDates, isRentedFlags, districtIds,
+                            count);
+                        Pause();
+                        break;
                     case "2":
                         AddListing(
                             ids, addresses, roomsCounts, areas, floors,
@@ -62,7 +68,7 @@ namespace HousingRental
         static void ShowMenu()
         {
             Console.WriteLine("=== Оренда житла ===");
-            Console.WriteLine("1 - Показати всі оголошення (поки не зроблено)");
+            Console.WriteLine("1 - Показати всі оголошення");
             Console.WriteLine("2 - Додати оголошення");
             Console.WriteLine("3 - Знайти за умовою (поки не зроблено)");
             Console.WriteLine("4 - Змінити оголошення (поки не зроблено)");
@@ -235,6 +241,38 @@ namespace HousingRental
             nextId++;
 
             Console.WriteLine($"\nДодано оголошення №{ids[count - 1]}. Усього записів: {count}.");
+        }
+
+        static void PrintAllListings(
+            int[] ids,
+            string[] addresses,
+            int[] roomsCounts,
+            double[] areas,
+            int[] floors,
+            double[] monthlyPrices,
+            DateTime[] publicationDates,
+            bool[] isRentedFlags,
+            int[] districtIds,
+            int count)
+        {
+            if (count == 0)
+            {
+                Console.WriteLine("Записів поки немає.");
+                return;
+            }
+
+            Console.WriteLine($"{"№",4} {"Адреса",-28} {"Кімн.",6} {"Площа",8} {"Пов.",5} {"Ціна/міс",11} {"Дата публ.",12} {"Здано",7} {"Район",6}");
+            Console.WriteLine(new string('-', 95));
+
+            for (int i = 0; i < count; i++)
+            {
+                string rentedMark = isRentedFlags[i] ? "так" : "ні";
+                Console.WriteLine(
+                    $"{ids[i],4} {addresses[i],-28} {roomsCounts[i],6} {areas[i],8:F1} {floors[i],5} {monthlyPrices[i],11:F0} {publicationDates[i],12:dd.MM.yyyy} {rentedMark,7} {districtIds[i],6}");
+            }
+
+            Console.WriteLine(new string('-', 95));
+            Console.WriteLine($"Записів: {count}.");
         }
 
         static void ShowAbout()
